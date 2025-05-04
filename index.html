@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Multi-Label Image Classification</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Reveal.js стили -->
+    <link rel="stylesheet" href="dist/reset.css">
+    <link rel="stylesheet" href="dist/reveal.css">
+    <link rel="stylesheet" href="dist/theme/night.css" id="theme">
+    <link rel="stylesheet" href="plugin/highlight/monokai.css">
+
+    <style>
+        @font-face {
+            font-family: "A11";
+            src: url("A11.otf") format("opentype");
+        }
+
+        h2.custom-font, h4.custom-font {
+            font-family: "A11", sans-serif;
+            text-transform: uppercase;
+            color: rgb(231, 173, 82);
+        }
+
+        #animatedBackground {
+            position: fixed;
+            z-index: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: none;
+
+        }
+
+
+        .tile-row:nth-of-type(1) {
+            top: calc(100vh * 0 / 4);
+        }
+
+        .tile-row:nth-of-type(2) {
+            top: calc(100vh * 1 / 4);
+        }
+
+        .tile-row:nth-of-type(3) {
+            top: calc(100vh * 2 / 4);
+        }
+
+        .tile-row:nth-of-type(4) {
+            top: calc(100vh * 3 / 4);
+        }
+
+
+        .tile-row {
+            position: absolute;
+            width: 100%;
+            height: 25%;
+            background-image: url('background.png');
+            background-repeat: repeat-x;
+            background-size: auto 25%; /* Сохраняем пропорции, заполняем высоту */
+            background-position: center;
+            animation: scroll-infinite 20s linear infinite;
+        }
+
+        .tile-row.reverse {
+            animation: scroll-infinite-reverse 20s linear infinite;
+        }
+
+        @keyframes scroll-infinite {
+            from {
+                background-position-x: 0;
+            }
+            to {
+                background-position-x: 100%;
+            }
+            /* Анимация до 100% ширины фона */
+        }
+
+        @keyframes scroll-infinite-reverse {
+            from {
+                background-position-x: 0;
+            }
+            to {
+                background-position-x: -100%;
+            }
+            /* Отрицательное значение для обратного движения */
+        }
+    </style>
+
+<!--    <script src="plugin/highlight/highlight.js"></script>-->
+<!--    <script src="plugin/print-pdf/print-pdf.js"></script>-->
+</head>
+
+<body>
+<!-- Фоновый блок -->
+<div id="animatedBackground">
+    <div class="tile-row reverse"></div>
+    <div class="tile-row"></div>
+    <div class="tile-row reverse"></div>
+    <div class="tile-row"></div>
+</div>
+
+
+<div class="reveal">
+    <div class="slides">
+
+        <!-- Title Slide -->
+        <section>
+            <h2 class="custom-font" style="color: rgb(231, 173, 82)">Multi-Label Image Classification</h2>
+            <h4 class="custom-font" style="padding-bottom: 150px; padding-top: 50px; font-size: 24px;">Ilia Zhigarev,
+                Alejandro Cornelio Ramón</h4>
+        </section>
+
+        <!-- Introduction -->
+        <section>
+            <section>
+                <h2 class="custom-font">Introducción Teórica</h2>
+                <ul>
+                    <li>Clasificación con múltiples etiquetas simultáneas</li>
+                    <li>Ejemplo: Imágenes con múltiples objetos</li>
+                    <li>Activación en salida: Sigmoide</li>
+                    <li>Función de pérdida: Binary Cross-Entropy</li>
+                </ul>
+            </section>
+        </section>
+
+        <!-- Data Preparation -->
+        <section>
+            <section>
+                <h2 class="custom-font">Datos</h2>
+            </section>
+        </section>
+
+        <!-- Картинки -->
+        <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+            <h2 class="custom-font">Imágenes</h2>
+            <div class="r-hstack justify-center" style="gap: 200px;">
+                <img data-id="mnist" src="mnist.png" style="width: 200px; border: 2px solid rgb(231, 173, 82);"/>
+                <img data-id="fashion" src="fashion.png" style="width: 200px; border: 2px solid rgb(231, 173, 82);"/>
+            </div>
+        </section>
+
+        <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+            <h2 class="custom-font">Imágenes combinadas</h2>
+            <div class="r-hstack justify-center">
+                <img data-id="mnist" src="mnist.png"
+                     style="width: 200px; border-top: 2px solid rgb(231, 173, 82); border-left: 2px solid rgb(231, 173, 82); border-bottom: 2px solid rgb(231, 173, 82); border-right: none;"/>
+                <img data-id="fashion" src="fashion.png"
+                     style="width: 200px; margin-left: -1px; border-top: 2px solid rgb(231, 173, 82); border-right: 2px solid rgb(231, 173, 82); border-bottom: 2px solid rgb(231, 173, 82); border-left: none;"/>
+            </div>
+        </section>
+
+        <!-- Model Architecture -->
+        <section>
+            <section>
+                <h2 class="custom-font">Arquitectura del Modelo</h2>
+                <pre><code class="hljs python">
+    model = Sequential([
+      Conv2D(32, (3,3), activation='relu', input_shape=(28,56,1)),
+      MaxPooling2D((2,2)),
+      Conv2D(64, (3,3), activation='relu'),
+      MaxPooling2D((2,2)),
+      Flatten(),
+      Dense(128, activation='relu'),
+      Dropout(0.3),
+      Dense(20, activation='sigmoid')
+    ])
+              </code></pre>
+            </section>
+        </section>
+
+        <!-- Training Metrics -->
+        <section>
+            <section>
+                <h2 class="custom-font">Métricas de Entrenamiento</h2>
+                <ul>
+                    <li>Hamming Loss</li>
+                    <li>F1 Score</li>
+                    <li>Intersection over Union (IoU)</li>
+                    <li>Subset Accuracy</li>
+                </ul>
+            </section>
+            <section>
+                <img src="training_metrics_with_subset.png" alt="Curvas de Métricas"
+                     style="width: 75%; height: auto;"
+                >
+            </section>
+            <section>
+                <section>
+                    <h2 class="custom-font">Resultados: epoca 15</h2>
+                    <table>
+                        <tr>
+                            <th>Métrica</th>
+                            <th>Entrenamiento</th>
+                            <th>Validación</th>
+                        </tr>
+                        <tr>
+                            <td>F1 Score</td>
+                            <td>0.9571</td>
+                            <td>0.9388</td>
+                        </tr>
+                        <tr>
+                            <td>Hamming Loss</td>
+                            <td>0.0081</td>
+                            <td>0.0110</td>
+                        </tr>
+                        <tr>
+                            <td>IoU</td>
+                            <td>0.9383</td>
+                            <td>0.9149</td>
+                        </tr>
+                        <tr>
+                            <td>Subset Accuracy</td>
+                            <td>0.8807</td>
+                            <td>0.8527</td>
+                        </tr>
+                        <tr>
+                            <td>Binary Crossentropy (Loss)</td>
+                            <td>0.0204</td>
+                            <td>0.0314</td>
+                        </tr>
+                    </table>
+
+                </section>
+
+            </section>
+        </section>
+
+<!--        &lt;!&ndash; Results Visualization &ndash;&gt;-->
+<!--        <section>-->
+<!--            <section>-->
+<!--                <h2 class="custom-font">Resultados del Modelo</h2>-->
+<!--                <p>Comparación visual entre etiquetas reales y predicciones:</p>-->
+<!--                <img src="predictions_visualization.png" alt="Model Predictions" style="width:80%;">-->
+<!--            </section>-->
+<!--        </section>-->
+
+        <!-- Conclusions -->
+        <section>
+            <section>
+                <h2 class="custom-font">Conclusiones</h2>
+                <ul>
+                    <li>Buen rendimiento general del modelo en clasificación multi-etiqueta</li>
+                    <li>Mejoras posibles:
+                        <ul>
+                            <li>Ajuste de hiperparámetros</li>
+                            <li>Uso de datasets más complejos</li>
+                            <li>Pruebas con diferentes arquitecturas</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+        </section>
+
+        <section id="pattern-slide"
+                 style="display: flex;
+                 flex-direction: column;
+                 align-items: center;
+                 justify-content: center;
+                 margin: 300px 0;
+                 height: 100vh;">
+            <p>
+                <a href="https://colab.research.google.com/drive/1zS1TErEk5EheMrVwecC9p_KHreEW-8nl" target="_blank"
+                   style="font-size: 18px;
+                   text-decoration: none;
+                   padding-right: 10px;
+">
+                    Google Colab Notebook
+                </a>
+                <button onclick="window.location.search='?print-pdf'"
+                        style="
+                    background-color: #e7ad52;
+                    color: black;
+                    border: none;
+                    padding: 10px 15px;
+                    border-radius: 5px;
+                    font-family: 'A11', sans-serif;
+                    cursor: pointer;
+                    font-size: 16px;
+                ">
+                    PDF
+                </button>
+            </p>
+        </section>
+
+
+    </div>
+</div>
+
+<!-- Reveal.js плагины -->
+<script src="dist/reveal.js"></script>
+<script src="plugin/zoom/zoom.js"></script>
+<script src="plugin/notes/notes.js"></script>
+<script src="plugin/search/search.js"></script>
+<script src="plugin/markdown/markdown.js"></script>
+<script src="plugin/highlight/highlight.js"></script>
+
+<!-- Инициализация и показ фона только на одном слайде -->
+<script>
+  Reveal.initialize({
+    controls: true,
+    progress: true,
+    center: true,
+    hash: true,
+    plugins: [RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight]
+  });
+
+  Reveal.on('slidechanged', function (event) {
+    const animatedBg = document.getElementById('animatedBackground');
+    if (event.currentSlide.id === 'pattern-slide') {
+      animatedBg.style.display = 'block';
+    } else {
+      animatedBg.style.display = 'none';
+    }
+  });
+</script>
+</body>
+</html>
